@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Convite de Aniversário - Gabriel</title>
+  <style>
+    body {
+      background-color: #0d0d0d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      /* Fonte com suporte a emojis */
+      font-family: "Courier New", monospace, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
+    }
+    @media screen and (max-width: 768px) {
+    #terminal {
+        width: 90%;
+        padding: 15px;
+        font-size: 14px;
+    }
+}
+    #terminal {
+      background: #111;
+      color: #00ff00;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #00ff00;
+      width: 600px;
+      white-space: pre-wrap;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    input {
+      background: black;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      padding: 5px;
+      margin-top: 10px;
+      width: 95%;
+    }
+    button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      border-radius: 5px;
+      transition: 0.3s;
+      position: relative;
+    }
+    .yes {
+      background: #00ff00;
+      color: black;
+    }
+    .yes:hover {
+      box-shadow: 0 0 10px #00ff00;
+      transform: scale(1.05);
+    }
+    .no {
+      background: #ff0033;
+      color: white;
+    }
+    .no:hover {
+      box-shadow: 0 0 10px #ff0033;
+      transform: rotate(-2deg) scale(0.95);
+    }
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      background-color: #00ff00;
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink {
+      0%, 50% { background-color: #00ff00; }
+      50%, 100% { background-color: transparent; }
+    }
+
+    /* Estilos para o X de negação */
+    .deny-x {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 50px;
+      color: #ff0033;
+      font-weight: bold;
+      opacity: 1;
+      animation: fade-out 0.8s forwards;
+    }
+    @keyframes fade-out {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal"></div>
+
+  <script type="module">
+    // Importa o Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    // Importa a biblioteca de confetes
+    import confetti from "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.module.mjs";
+
+    // TODO: substitua pela sua configuração do Firebase:
+    const firebaseConfig = {
+  apiKey: "AIzaSyBmFWt6UkH1cktbRGvJCmAn6j5ks9M2G7o",
+  authDomain: "convite-do-meu-niver-d1ea6.firebaseapp.com",
+  projectId: "convite-do-meu-niver-d1ea6",
+  storageBucket: "convite-do-meu-niver-d1ea6.firebasestorage.app",
+  messagingSenderId: "141779626685",
+  appId: "1:141779626685:web:0a01cd9663d02a463ee5d4",
+  measurementId: "G-VZJ8N4LMNC"
+};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const text = [
+      "> run convite_de_aniversario.exe",
+      "Carregando..."
+    ];
+
+    const terminal = document.getElementById("terminal");
+    const cursor = document.createElement("span");
+    cursor.className = "cursor";
+    terminal.appendChild(cursor);
+
+    let line = 0, char = 0, speed = 50;
+
+    function type() {
+      if (line < text.length) {
+        if (char < text[line].length) {
+          cursor.insertAdjacentText("beforebegin", text[line][char]);
+          char++;
+          setTimeout(type, speed);
+        } else {
+          cursor.insertAdjacentHTML("beforebegin", "\n");
+          line++;
+          char = 0;
+          setTimeout(type, 500);
+        }
+      } else {
+        askName();
+      }
+    }
+
+    function askName() {
+      cursor.insertAdjacentHTML("beforebegin", "\nDigite seu nome: ");
+      const input = document.createElement("input");
+      terminal.appendChild(input);
+      input.focus();
+
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && input.value.trim() !== "") {
+          const nome = input.value.trim();
+          input.remove();
+          showInvite(nome);
+        }
+      });
+    }
+
+    function showInvite(nome) {
+      const inviteText = [
+        `Olá, ${nome}!`,
+        "", 
+        "🎉 Você está convidado para a comemoração do meu niver! 🎉",
+        "📅 Data: 23/08 (Sábado) - 14h30",
+        "📍 Local: Lago Paranoá",
+        "   Pode levar sua bebida ou o que quiser, o que importa é sua presença :P"
+      ];
+
+      terminal.innerHTML = ""; 
+      terminal.appendChild(cursor);
+
+      let inviteLine = 0, inviteChar = 0;
+
+      function typeInvite() {
+        if (inviteLine < inviteText.length) {
+          if (inviteChar < inviteText[inviteLine].length) {
+            cursor.insertAdjacentText("beforebegin", inviteText[inviteLine][inviteChar]);
+            inviteChar++;
+            setTimeout(typeInvite, speed);
+          } else {
+            cursor.insertAdjacentHTML("beforebegin", "\n");
+            inviteLine++;
+            inviteChar = 0;
+            setTimeout(typeInvite, 500);
+          }
+        } else {
+          cursor.remove();
+
+          const yesBtn = document.createElement("button");
+          yesBtn.className = "yes";
+          yesBtn.textContent = "Consigo ir 🎉";
+
+          const noBtn = document.createElement("button");
+          noBtn.className = "no";
+          noBtn.textContent = "Não consigo ir 😢";
+
+          terminal.appendChild(yesBtn);
+          terminal.appendChild(noBtn);
+
+          // Lógica do botão "Sim"
+          yesBtn.onclick = async () => {
+            const rect = yesBtn.getBoundingClientRect();
+            confetti({
+              particleCount: 150,
+              spread: 180,
+              origin: {
+                x: (rect.left + rect.width / 2) / window.innerWidth,
+                y: (rect.top + rect.height / 2) / window.innerHeight
+              }
+            });
+            await addDoc(collection(db, "presencas"), {
+              nome: nome,
+              status: "Vai 🎉"
+            });
+            terminal.innerHTML += `\n✅ Presença confirmada! Te vejo na festa, ${nome}!\n`;
+          };
+
+          // Lógica do botão "Não"
+          noBtn.onclick = async () => {
+            const denyX = document.createElement('div');
+            denyX.className = 'deny-x';
+            denyX.textContent = 'X';
+            
+            // Adiciona o 'X' como filho do botão para centralizá-lo corretamente
+            noBtn.appendChild(denyX);
+            setTimeout(() => denyX.remove(), 800);
+
+            await addDoc(collection(db, "presencas"), {
+              nome: nome,
+              status: "Não vai 😢"
+            });
+            terminal.innerHTML += `\n❌ Que pena, ${nome}! Vou sentir sua falta.\n`;
+          };
+        }
+      }
+      typeInvite();
+    }
+    type();
+  </script>
+</body>
+</html>
